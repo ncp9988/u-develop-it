@@ -1,9 +1,6 @@
-
-const inputCheck = require('./utils/inputCheck');
-
-const mysql = require('mysql2');
 const express = require('express');
-const res = require('express/lib/response');
+const mysql = require('mysql2');
+const inputCheck = require('./utils/inputCheck');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -34,7 +31,12 @@ const db = mysql.createConnection(
 
 //GET ALL candidates updated
 app.get('/api/candidates', (req, res) => {
-  const sql = `SELECT * FROM candidates`;
+  const sql = `
+  SELECT candidates.*, parties.name 
+  AS party_name 
+  FROM candidates 
+  LEFT JOIN parties 
+  ON candidates.party_id = parties.id`;
 
   db.query(sql, (err,row) => {
     if (err) {
@@ -59,7 +61,13 @@ app.get('/api/candidates', (req, res) => {
 
 // GET a SINGLE candidate updated
 app.get('/api/candidate/:id', (req, res) => {
-  const sql = `SELECT * FROM candidates WHERE id = ?`;
+  const sql = `
+  SELECT candidates.*, parties.name 
+  AS party_name 
+  FROM candidates 
+  LEFT JOIN parties 
+  ON candidates.party_id = parties.id 
+  WHERE candidates.id = ?`;
   const params = [req.params.id];
 
   db.query(sql, params, (err, row) => {
